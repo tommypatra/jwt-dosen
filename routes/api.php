@@ -49,12 +49,21 @@
     Route::middleware('auth.token-jwt')->group(function () {
 
         Route::get('/cek-token', function () {
-            $user = auth()->user();
-            return response()->json([
-                'status' => true,
-                'message' => 'Token valid',
-                'data' => $user,
-            ], 200);
+            try {
+                JWTAuth::setToken($request->bearerToken())->checkOrFail();
+                $user = auth()->user();
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Token valid',
+                    'data' => $user,
+                ], 200);
+            } catch (JWTException $e) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Token tidak valid',
+                    'data' => $user,
+                ], 402);
+            }
         });
 
         Route::get('/akun', function (Request $request) {
@@ -65,6 +74,17 @@
                 'data' => $data,
             ];
             return response()->json($dataRespon);
+        });
+
+        Route::post('/logout', function (Request $request) {
+            $token = auth()->guard('api')->getToken();
+            auth()->guard('api')->logout();
+            JWTAuth::invalidate($token);
+
+            return response()->json([
+                'status' => true,
+                'message' => "Logout berhasil"
+            ], 200);
         });
     });
 
