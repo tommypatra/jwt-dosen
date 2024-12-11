@@ -21,3 +21,7 @@ Route::get('/peta-3', function () {
 Route::get('/peta-4', function () {
     return view('map4');
 });
+
+Route::get('/peta-5', function () {
+    return view('map5');
+});
