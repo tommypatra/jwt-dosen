@@ -44,13 +44,17 @@
         const routingControl = L.Routing.control({
             waypoints: [],
             routeWhileDragging: true,
-            serviceUrl: `https://api.openrouteservice.org/v2/directions/driving-car`,
             createMarker: () => null,
             lineOptions: {
                 styles: [{ color: 'blue', opacity: 0.8, weight: 4 }],
             },
-            router: L.Routing.openrouteservice(apiKey)
+            routeLine: L.Routing.line,
+            router: new L.Routing.OSRMv1({
+                serviceUrl: 'https://api.openrouteservice.org/v2/directions/driving-car',  // URL API OpenRouteService
+                apiKey: apiKey
+            })
         }).addTo(map);
+
     
         const displayRouteDetails = (routes) => {
             const directionsList = document.getElementById("directions-list");
@@ -118,9 +122,16 @@
             ]);
         });
     
-        routingControl.on('routesfound', (e) => {
-            displayRouteDetails(e.routes);
+        routingControl.on('routesfound', function(e) {
+            if (e.error) {
+                console.error("Routing error:", e.error);
+            } else {
+                console.log("Route found:", e.routes);
+                displayRouteDetails(e.routes);
+
+            }
         });
+
     </script>
     
 </body>
