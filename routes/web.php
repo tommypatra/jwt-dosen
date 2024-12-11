@@ -6,18 +6,18 @@ Route::get('/notif', function () {
     return view('notif');
 });
 
-Route::get('/map', function () {
+Route::get('/peta-1', function () {
     return view('map');
 });
 
-Route::get('/map2', function () {
+Route::get('/peta-2', function () {
     return view('map2');
 });
 
-Route::get('/map3', function () {
+Route::get('/peta-3', function () {
     return view('map3');
 });
 
-Route::get('/map4', function () {
-    return view('map3');
+Route::get('/peta-4', function () {
+    return view('map4');
 });
