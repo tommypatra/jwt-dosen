@@ -10,18 +10,17 @@
         #map {
             height: 500px;
         }
-        #directions-list {
-            list-style: none;
-            padding: 0;
-        }
-        #directions-list li {
-            margin-bottom: 5px;
+        #rutetujuan {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
         }
     </style>
 </head>
 <body>
     <div id="map"></div>
-    <ul id="directions-list"></ul>
+    <div id="rutetujuan"></div> <!-- Div untuk detail rute -->
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.js"></script>
@@ -36,26 +35,33 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
     
-        // Variabel untuk menyimpan lokasi pengguna dan marker-nya
+        // Variabel untuk menyimpan lokasi pengguna, marker, dan zoom terakhir
         let userLocation = null;
         let userMarker = null;
+        let lastZoom = map.getZoom();
     
-        // Routing Control
+        // Routing Control dengan kustomisasi container rute
         const routingControl = L.Routing.control({
             waypoints: [],
             routeWhileDragging: true,
             createMarker: function() {
                 return null; // Jangan buat marker untuk waypoint
             },
-            addWaypoints: false,
             lineOptions: {
-                styles: [{ color: 'blue', opacity: 0.8, weight: 4 }], // Gaya garis
+                styles: [{ color: 'blue', opacity: 0.8, weight: 4 }],
             },
             show: false,
+            formatter: new L.Routing.Formatter({
+                container: document.getElementById('rutetujuan'), // Arahkan rute ke div
+                formatDistance: function(d) {
+                    return (d / 1000).toFixed(1) + ' km'; // Format jarak
+                },
+                formatTime: function(t) {
+                    const minutes = Math.round(t / 60);
+                    return `${minutes} menit`;
+                }
+            }),
         }).addTo(map);
-    
-        // Variabel untuk menyimpan lokasi tujuan
-        let destination = null;
     
         // Geolocation untuk melacak posisi secara real-time
         if (navigator.geolocation) {
@@ -79,8 +85,9 @@
                             userMarker.setLatLng([userLocation.lat, userLocation.lng]);
                         }
     
-                        // Pusatkan peta ke lokasi pengguna
-                        map.setView([userLocation.lat, userLocation.lng], 14);
+                        // Dapatkan zoom terakhir dan perbarui posisi peta
+                        lastZoom = map.getZoom();
+                        map.setView([userLocation.lat, userLocation.lng], lastZoom);
     
                         // Jika ada tujuan, perbarui rute
                         if (destination) {
@@ -107,6 +114,9 @@
             alert("Geolocation tidak didukung oleh browser Anda.");
         }
     
+        // Variabel untuk menyimpan lokasi tujuan
+        let destination = null;
+    
         // Event untuk menangkap klik pada peta
         map.on('click', function(e) {
             if (!userLocation) {
@@ -127,6 +137,6 @@
                 .openPopup();
         });
     </script>
-    
+
 </body>
 </html>
